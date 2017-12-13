@@ -35,6 +35,7 @@ Inductive Eval_const : constant -> val_t -> Prop :=
     forall z lb ub (Hz : lb <= z <= ub), Eval_const (CReal lb ub) (val_of_z z)
 | Eval_const_CEnum : forall z, Eval_const CEnum (val_of_z z).
 
+(* Relation : - (_) = (_) *)
 Inductive Eval_uop : unop -> val_t -> val_t -> Prop :=
 | Eval_uop_Neg : forall z, Eval_uop Neg (val_of_z z) (val_of_z (- z))
 | Eval_uop_BNot : forall z, Eval_uop BNot (val_of_z z) (val_of_z (b_not z))

@@ -6,6 +6,7 @@ S lib
 S extract
 S debug
 S main
+S EvenOddInput
 
 B _build/frontend
 B _build/analysis/semantics
@@ -15,5 +16,6 @@ B _build/lib
 B _build/extract
 B _build/debug
 B _build/main
+B _build/EvenOddInput
 
 PKG cil ocamlgraph batteries
