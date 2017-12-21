@@ -475,6 +475,20 @@ Proof.
   apply Zeven_mult_Zeven_r; by auto.
 Qed.
 
+Lemma gamma_not_bot :
+  forall z abs_v,
+    Val_g (DomCon.val_of_z z) abs_v ->
+    (DomAbs.Val.fst abs_v) <> Zparity.Bot.
+Proof. inversion 1; inversion Hz; inversion 1.
+Qed.
+
+Lemma gamma_zero_is_not_odd:
+  forall ls ab ps,
+    Val_g (DomCon.val_of_z 0) (Zparity.Odd, ls, ab, ps) ->
+    (DomAbs.zparity_of_val (Zparity.Odd, ls, ab, ps)) <> Zparity.Even.
+Proof.
+  inversion 1; inversion Hz; subst; inversion 1. Qed.
+
 Lemma cor_eval_bop :
   forall op v1 v2 v' abs_v1 abs_v2 (Hu : SemCon.Eval_bop op v1 v2 v')
      (Habs1 : Val_g v1 abs_v1) (Habs2 : Val_g v2 abs_v2),
@@ -524,156 +538,170 @@ inversion_clear Hz1' as [z1'' Hz1''|z1'' Hz1''|]
 ; simpl; try (by repeat constructor).
 constructor; constructor; by apply c_mod_even.
 }
+(*
+/**
 {
  apply Zparity.unknown_binary_prop. i.
 - by apply itv_non_bot in Habs1.
 - by apply itv_non_bot in Habs2.
 }
+ *)
 {                               (* Shiftlt *)
-i. unfold SemEval.eval_bop, Itv.l_shift_itv.
-constructor. apply Itv.unknown_binary_prop; i.
-- by apply itv_non_bot in Habs1.
-- by apply itv_non_bot in Habs2.
+i. unfold SemEval.eval_bop, Zparity.l_shift_zparity.
+constructor. apply Zparity.unknown_binary_prop; i.
+- by apply zparity_non_bot in Habs1.
+- by apply zparity_non_bot in Habs2.
 }
 {                               (* Shiftrt *)
-i. unfold SemEval.eval_bop, Itv.r_shift_itv.
-constructor. apply Itv.unknown_binary_prop; i.
-- by apply itv_non_bot in Habs1.
-- by apply itv_non_bot in Habs2.
+i. unfold SemEval.eval_bop, Zparity.r_shift_zparity.
+constructor. apply Zparity.unknown_binary_prop; i.
+- by apply zparity_non_bot in Habs1.
+- by apply zparity_non_bot in Habs2.
 }
 {                               (* Lt *)
 i. unfold SemEval.eval_bop. constructor.
 inversion_clear Habs1; inversion_clear Habs2.
-by apply Itv.cor_lt1 with (z1:=z1) (z2:=z2).
+by apply Zparity.cor_lt1 with (z1:=z1) (z2:=z2).
 }
 {                               (* Lt *)
 i. unfold SemEval.eval_bop. constructor.
 inversion_clear Habs1; inversion_clear Habs2.
-by apply Itv.cor_lt0 with (z1:=z1) (z2:=z2).
+by apply Zparity.cor_lt0 with (z1:=z1) (z2:=z2).
 }
 {                               (* Gt *)
 i. unfold SemEval.eval_bop. constructor.
 inversion_clear Habs1; inversion_clear Habs2.
-unfold Itv.gt_itv.
-apply Itv.cor_lt1 with (z1:=z2) (z2:=z1); [omega|by auto|by auto].
+unfold Zparity.gt_zparity.
+apply Zparity.cor_lt1 with (z1:=z2) (z2:=z1); [omega|by auto|by auto].
 }
 {                               (* Gt *)
 i. unfold SemEval.eval_bop. constructor.
 inversion_clear Habs1; inversion_clear Habs2.
-unfold Itv.gt_itv.
-apply Itv.cor_lt0 with (z1:=z2) (z2:=z1); [intro; elim Hle; omega|by auto|by auto].
+unfold Zparity.gt_zparity.
+apply Zparity.cor_lt0 with (z1:=z2) (z2:=z1); [intro; elim Hle; omega|by auto|by auto].
 }
 {                               (* Le *)
 i. unfold SemEval.eval_bop. constructor.
 inversion_clear Habs1; inversion_clear Habs2.
-apply Itv.cor_le1 with (z1:=z1) (z2:=z2); by auto.
+apply Zparity.cor_le1 with (z1:=z1) (z2:=z2); by auto.
 }
 {
 i. unfold SemEval.eval_bop. constructor.
 inversion_clear Habs1; inversion_clear Habs2.
-apply Itv.cor_le0 with (z1:=z1) (z2:=z2); by auto.
+apply Zparity.cor_le0 with (z1:=z1) (z2:=z2); by auto.
 }
 {                               (* Ge *)
 i. unfold SemEval.eval_bop. constructor.
 inversion_clear Habs1; inversion_clear Habs2.
-unfold Itv.ge_itv.
-apply Itv.cor_le1 with (z1:=z2) (z2:=z1); [omega|by auto|by auto].
+unfold Zparity.ge_zparity.
+apply Zparity.cor_le1 with (z1:=z2) (z2:=z1); [omega|by auto|by auto].
 }
 {                               (* Ge *)
 i. unfold SemEval.eval_bop. constructor.
 inversion_clear Habs1; inversion_clear Habs2.
-unfold Itv.ge_itv.
-apply Itv.cor_le0 with (z1:=z2) (z2:=z1); [intro; elim Hlt; omega|by auto|by auto].
+unfold Zparity.ge_zparity.
+apply Zparity.cor_le0 with (z1:=z2) (z2:=z1); [intro; elim Hlt; omega|by auto|by auto].
 }
 {                               (* Eq *)
 i. unfold SemEval.eval_bop. constructor.
 inversion_clear Habs1; inversion_clear Habs2.
-apply Itv.cor_eq1 with (z:=z2); by auto.
+apply Zparity.cor_eq1 with (z:=z2); by auto.
 }
 {                               (* Eq *)
 i. unfold SemEval.eval_bop. constructor.
 inversion_clear Habs1; inversion_clear Habs2.
-apply Itv.cor_eq0 with (z1:=z1) (z2:=z2); by auto.
+apply Zparity.cor_eq0 with (z1:=z1) (z2:=z2); by auto.
 }
 {                               (* Ne *)
 i. unfold SemEval.eval_bop. constructor.
 inversion_clear Habs1; inversion_clear Habs2.
-apply Itv.cor_ne1 with (z1:=z1) (z2:=z2); by auto.
+apply Zparity.cor_ne1 with (z1:=z1) (z2:=z2); by auto.
 }
 {                               (* Ne *)
 i. unfold SemEval.eval_bop. constructor.
 inversion_clear Habs1; inversion_clear Habs2.
-apply Itv.cor_ne0 with (z:=z2); by auto.
+apply Zparity.cor_ne0 with (z:=z2); by auto.
 }
 {                               (* BAnd *)
-i. unfold SemEval.eval_bop, Itv.b_and_itv.
-constructor. apply Itv.unknown_binary_prop; i.
-- by apply itv_non_bot in Habs1.
-- by apply itv_non_bot in Habs2.
+i. unfold SemEval.eval_bop, Zparity.b_and_zparity.
+constructor. apply Zparity.unknown_binary_prop; i.
+- by apply zparity_non_bot in Habs1.
+- by apply zparity_non_bot in Habs2.
 }
 {                               (* BXor *)
-i. unfold SemEval.eval_bop, Itv.b_xor_itv.
-constructor. apply Itv.unknown_binary_prop; i.
-- by apply itv_non_bot in Habs1.
-- by apply itv_non_bot in Habs2.
+i. unfold SemEval.eval_bop, Zparity.b_xor_zparity.
+constructor. apply Zparity.unknown_binary_prop; i.
+- by apply zparity_non_bot in Habs1.
+- by apply zparity_non_bot in Habs2.
 }
 {                               (* BOr *)
-i. unfold SemEval.eval_bop, Itv.b_or_itv.
-constructor. apply Itv.unknown_binary_prop; i.
-- by apply itv_non_bot in Habs1.
-- by apply itv_non_bot in Habs2.
+i. unfold SemEval.eval_bop, Zparity.b_or_zparity.
+constructor. apply Zparity.unknown_binary_prop; i.
+- by apply zparity_non_bot in Habs1.
+- by apply zparity_non_bot in Habs2.
 }
 {                               (* LAnd *)
-i. unfold SemEval.eval_bop, Itv.and_itv.
-dest_if_dec; [|dest_if_dec; [|dest_if_dec]].
-- apply False_ind. destruct o; by eauto using itv_non_bot.
-- apply False_ind. destruct Hz. destruct o as [o|o].
-  + by apply (itv_non_zero (z:=z1)) in o.
-  + by apply (itv_non_zero (z:=z2)) in o.
-- constructor. by apply Itv.true_itv_prop.
-- constructor. by apply Itv.unknown_bool_prop1.
+  i. unfold SemEval.eval_bop, Zparity.and_zparity.
+  remember (DomAbs.zparity_of_val abs_v1) as case1.
+  remember (DomAbs.zparity_of_val abs_v2) as case2.
+  destruct case1; destruct case2
+  ; try (by apply False_ind,  (gamma_not_bot Habs1))
+  ; try (by apply False_ind, (gamma_not_bot Habs2))
+  ; constructor; by constructor.
+  
+ (* Alternative, but requires case analysis 
+   unfold DomAbs.zparity_of_val.
+  remember (DomAbs.Val.fst abs_v1) as case1.
+  remember (DomAbs.Val.fst abs_v2) as case2.
+  destruct case1; destruct case2.
+  exfalso. apply (gamma_not_bot Habs1).  
+  symmetry. apply Heqcase1.
+*)
 }
 {                               (* LAnd *)
-i. unfold SemEval.eval_bop, Itv.and_itv.
-dest_if_dec; [|dest_if_dec; [|dest_if_dec]].
-- apply False_ind. destruct o; by eauto using itv_non_bot.
-- constructor. by apply Itv.false_itv_prop.
-- destruct a1 as [a1 _]; elim a1. inversion Habs1; subst. by apply Itv.false_itv1.
-- constructor. by apply Itv.unknown_bool_prop0.
+  i. unfold SemEval.eval_bop, Zparity.and_zparity.
+  remember (DomAbs.zparity_of_val abs_v1) as case1.
+  remember (DomAbs.zparity_of_val abs_v2) as case2.
+  destruct case1; destruct case2
+  ; try (by apply False_ind, (gamma_not_bot Habs1))
+  ; try (by apply False_ind, (gamma_not_bot Habs2))
+  ; constructor; by constructor.
 }
 {                               (* LAnd *)
-i. unfold SemEval.eval_bop, Itv.and_itv.
-dest_if_dec; [|dest_if_dec; [|dest_if_dec]].
-- apply False_ind. destruct o; by eauto using itv_non_bot.
-- constructor. by apply Itv.false_itv_prop.
-- destruct a1 as [_ a1]; elim a1. inversion Habs2; subst. by apply Itv.false_itv1.
-- constructor. by apply Itv.unknown_bool_prop0.
+  i. unfold SemEval.eval_bop, Zparity.and_zparity.
+  remember (DomAbs.zparity_of_val abs_v1) as case1.
+  remember (DomAbs.zparity_of_val abs_v2) as case2.
+  destruct case1; destruct case2
+  ; try (by apply False_ind, (gamma_not_bot Habs1))
+  ; try (by apply False_ind, (gamma_not_bot Habs2))
+  ; by constructor; constructor.
 }
 {                               (* LOr *)
-i. unfold SemEval.eval_bop, Itv.or_itv.
-dest_if_dec; [|dest_if_dec; [|dest_if_dec]].
-- apply False_ind. destruct o; by eauto using itv_non_bot.
-- destruct a0; by apply itv_non_zero in Habs1.
-- constructor. by apply Itv.true_itv_prop.
-- constructor. by apply Itv.unknown_bool_prop1.
+ i. unfold SemEval.eval_bop, Zparity.or_zparity.
+ remember (DomAbs.zparity_of_val abs_v1) as case1.
+ remember (DomAbs.zparity_of_val abs_v2) as case2.
+ destruct case1; destruct case2
+ ; try (by apply False_ind, (gamma_not_bot Habs1))
+ ; try (by apply False_ind, (gamma_not_bot Habs2))
+ ; by constructor; constructor.
 }
 {                               (* LOr *)
-i. unfold SemEval.eval_bop, Itv.or_itv.
-dest_if_dec; [|dest_if_dec; [|dest_if_dec]].
-- apply False_ind. destruct o; by eauto using itv_non_bot.
-- destruct a0; by apply itv_non_zero in Habs2.
-- constructor. by apply Itv.true_itv_prop.
-- constructor. by apply Itv.unknown_bool_prop1.
+  i. unfold SemEval.eval_bop, Zparity.or_zparity.
+  remember (DomAbs.zparity_of_val abs_v1) as case1.
+  remember (DomAbs.zparity_of_val abs_v2) as case2.
+  destruct case1; destruct case2
+  ; try (by apply False_ind, (gamma_not_bot Habs1))
+  ; try (by apply False_ind, (gamma_not_bot Habs2))
+  ; by constructor; constructor.
 }
 {                               (* LOr *)
-i. unfold SemEval.eval_bop, Itv.or_itv.
-dest_if_dec; [|dest_if_dec; [|dest_if_dec]].
-- apply False_ind. destruct o; by eauto using itv_non_bot.
-- constructor. by apply Itv.false_itv_prop.
-- destruct o0 as [o0|o0]; elim o0.
-  + inversion Habs1; subst; by apply Itv.false_itv1.
-  + inversion Habs2; subst; by apply Itv.false_itv1.
-- constructor. by apply Itv.unknown_bool_prop0.
+i. unfold SemEval.eval_bop, Zparity.or_zparity.
+remember (DomAbs.zparity_of_val abs_v1) as case1.
+remember (DomAbs.zparity_of_val abs_v2) as case2.
+destruct case1; destruct case2
+; try (by apply False_ind, (gamma_not_bot Habs1))
+; try (by apply False_ind, (gamma_not_bot Habs2))
+; by constructor; constructor.
 }
 Qed.
 
@@ -681,8 +709,11 @@ Local Close Scope sumbool.
 
 Lemma eval_zero :
   forall abs_v (Habs : Val_g (DomCon.val_of_z 0) abs_v),
-    Itv.le Itv.zero (DomAbs.itv_of_val abs_v).
-Proof. inversion 1; inversion Hz; subst. by constructor. Qed.
+    Zparity.le Zparity.zero (DomAbs.zparity_of_val abs_v).
+Proof. inversion 1. inversion Hz; subst. constructor.
+       by (apply False_ind, (gamma_zero_is_not_odd Habs)).
+       constructor.
+Qed.
 
 Lemma cor_cast :
   forall step alloc o o' sz sz' st st' ab
@@ -692,21 +723,21 @@ Lemma cor_cast :
     ArrayBlk_g (step, alloc, (o', sz', st')) (ArrayBlk.cast_array_int st' ab).
 Proof.
 inversion 3; subst. econstructor.
-- apply Itv.divide_prop; [apply Itv.times_prop|].
+- apply Zparity.divide_prop; [apply Zparity.times_prop|].
   + by apply Ho.
   + by apply Hst.
-  + by apply Itv.cor_of_int.
-- apply Itv.divide_prop; [apply Itv.times_prop|].
+  + by apply Zparity.cor_of_int.
+- apply Zparity.divide_prop; [apply Zparity.times_prop|].
   + by apply Hsz.
   + by apply Hst.
-  + by apply Itv.cor_of_int.
-- by apply Itv.cor_of_int.
+  + by apply Zparity.cor_of_int.
+- by apply Zparity.cor_of_int.
 - unfold ArrayBlk.cast_array_int, ArrayBlk.cast_array.
   rewrite ArrayBlk.map_1 with (v:=(o'0, sz'0, st'0)); [| |by auto].
-  + destruct (Itv.eq_dec Itv.bot st'0); [|by auto].
-    apply Itv.non_bot in Hst; [by elim Hst|by apply Itv.eq_sym].
-  + s; destruct (Itv.eq_dec Itv.bot Itv.bot)
-    ; [reflexivity|by elim f; apply Itv.eq_refl].
+  + destruct (Zparity.eq_dec Zparity.bot st'0); [|by auto].
+    apply Zparity.non_bot in Hst; [by elim Hst|by apply Zparity.eq_sym].
+  + s; destruct (Zparity.eq_dec Zparity.bot Zparity.bot)
+    ; [reflexivity|by elim f; apply Zparity.eq_refl].
 Qed.
 
 Lemma cor_pow_loc_of_array :
@@ -728,8 +759,8 @@ with (teq:=PowLoc.eq) (k:=Allocsite_g a) (v:=(o', sz', st')).
   + rewrite PowLoc.mem_mor; [by apply Hmem|by apply Loc.eq_refl|by auto].
 - rewrite Hab; by apply ArrInfo.eq_refl.
 - destruct (ArrInfo.eq_dec ArrInfo.bot (o', sz', st'))
-  ; [ inversion e; simpl in H0; apply Itv.non_bot in Hst
-      ; [by elim Hst|by apply Itv.eq_sym] |].
+  ; [ inversion e; simpl in H0; apply Zparity.non_bot in Hst
+      ; [by elim Hst|by apply Zparity.eq_sym] |].
   i; apply DomBasic.PowLoc.mem_add_1; by apply Loc.eq_refl.
 - i; destruct (ArrInfo.eq_dec ArrInfo.bot v)
   ; [by apply PowLoc.eq_refl|by elim f].
@@ -808,7 +839,7 @@ inversion 1; subst; clear Hl.
   + unfold DomAbs.array_of_val.
     rewrite <- Hab; by apply ArrInfo.eq_refl.
   + i; dest_if_dec
-    ; [ inversion e; simpl in H0; apply Itv.non_bot in Hst
+    ; [ inversion e; simpl in H0; apply Zparity.non_bot in Hst
         ; [by elim Hst|by auto] |].
     apply PowLoc.mem_add_1.
     constructor; split; [by apply VarAllocsite.eq_refl|by apply cor_fields_app].
@@ -834,7 +865,7 @@ Lemma cor_plus_offset_val :
                       (DomCon.loc_of_alloc
                          step alloc (o, sz, st) DomCon.Fields.nil))
                    abs_v)
-         (Hidx : Itv_g idx abs_idx),
+         (Hidx : Zparity_g idx abs_idx),
     Val_g
       (DomCon.val_of_loc
          (DomCon.loc_of_alloc
@@ -842,21 +873,22 @@ Lemma cor_plus_offset_val :
       (DomAbs.modify_array
          abs_v (ArrayBlk.plus_offset (DomAbs.array_of_val abs_v) abs_idx)).
 Proof.
-i. unfold ArrayBlk.plus_offset.
-destruct (Itv.eq_dec abs_idx Itv.bot).
-- inversion Hidx; subst. inversion e.
+  i. unfold ArrayBlk.plus_offset.
+destruct (Zparity.eq_dec abs_idx Zparity.bot). 
+- inversion Hidx; subst; inversion e. 
 - inversion Habs; subst.
   + apply Val_g_loc. by apply Hl.
   + apply Val_g_ab.
     inversion Hl; subst.
     eapply ArrayBlk_g_intro
-    ; [ apply Itv.cor_plus; [by apply Ho|by apply Hidx]
+    ; [ apply Zparity.cor_plus; [by apply Ho|by apply Hidx]
       | by apply Hsz
       | by apply Hst |].
     rewrite ArrayBlk.map_1 with (v:=(o', sz', st')).
-    * s. destruct (Itv.eq_dec Itv.bot o')
+    * s. destruct (Zparity.eq_dec Zparity.bot o')
          ; [inversion Ho; subst; inversion e|reflexivity].
-    * s. destruct (Itv.eq_dec Itv.bot Itv.bot); by auto.
+    * s. destruct (Zparity.eq_dec Zparity.bot Zparity.bot); [by auto|].
+      elim f0; by apply Zparity.eq_refl.
     * by auto.
 Qed.
 
